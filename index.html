@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kaspa WASM Wallet Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    input, button { font-size: 1rem; padding: 0.5em; }
+    #walletInfo { margin-top: 1em; }
+    #walletInfo p { margin: 0.3em 0; }
+  </style>
+</head>
+<body>
+  <h1>Kaspa Wallet Generator</h1>
+  
+  <!-- Optional passphrase input -->
+  <div>
+    <label for="passphrase">Enter passphrase (optional):</label>
+    <input type="text" id="passphrase" placeholder="Optional passphrase" />
+  </div>
+  
+  <!-- Button to generate wallet -->
+  <button id="generateWallet">Generate Wallet</button>
+  
+  <!-- Area where wallet details will be displayed -->
+  <div id="walletInfo">
+    <p><strong>Mnemonic:</strong> <span id="mnemonic">—</span></p>
+    <p><strong>Public Address:</strong> <span id="publicAddress">—</span></p>
+    <p><strong>Private Key:</strong> <span id="privateKey">—</span></p>
+  </div>
+
+  <!-- Main script -->
+  <script type="module">
+    // Import the Kaspa WASM module from the web build.
+    import * as kaspa from './kaspa-wasm32-sdk/web/kaspa/kaspa.js';
+
+    (async () => {
+      // Initialize the WASM binary using new URL() so the loader knows it's a wasm file.
+      await kaspa.default(new URL('./kaspa-wasm32-sdk/web/kaspa/kaspa_bg.wasm', import.meta.url));
+      console.log("Kaspa WASM loaded. Version:", kaspa.version());
+
+      // Constants for wallet derivation.
+      const KASPA_DERIVATION_PATH = "m/44'/111111'/0'/0/0";
+      const networkType = "mainnet";  // Change if needed.
+
+      // Attach a click event handler to the generate button.
+      document.getElementById("generateWallet").addEventListener("click", () => {
+        // Read an optional passphrase from the input field.
+        const passphrase = document.getElementById("passphrase").value || null;
+        console.log("Creating new wallet with passphrase:", passphrase ? "[provided]" : "[none]", "on network:", networkType);
+
+        // Destructure wallet functions from the kaspa namespace.
+        // (These functions are from the WASM bindings and may vary by SDK version.)
+        const { Mnemonic, XPrv } = kaspa;
+
+        // Generate a new random mnemonic phrase.
+        const generatedMnemonic = Mnemonic.random().phrase;
+        
+        // Generate seed from mnemonic with optional passphrase.
+        const seed = passphrase 
+          ? new Mnemonic(generatedMnemonic).toSeed(passphrase)
+          : new Mnemonic(generatedMnemonic).toSeed();
+        
+        // Generate the hierarchical extended private key (xPrv) from the seed.
+        const xPrv = new XPrv(seed);
+        // Derive along the specified derivation path.
+        const derivedXPrv = xPrv.derivePath(KASPA_DERIVATION_PATH);
+        const privateKey = derivedXPrv.toPrivateKey();
+        
+        // Convert the public key into a Kaspa address.
+        const publicAddress = privateKey.toPublicKey().toAddress(networkType).toString();
+      
+        // Display the generated values in the page.
+        document.getElementById("mnemonic").textContent = generatedMnemonic;
+        document.getElementById("publicAddress").textContent = publicAddress;
+        document.getElementById("privateKey").textContent = privateKey.toString();
+      });
+    })();
+  </script>
+</body>
+</html>
