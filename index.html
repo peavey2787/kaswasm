@@ -31,13 +31,13 @@
   </div>
 
   <!-- Main script -->
-  <script type="module">
-    // Import the Kaspa WASM module from the web build.
-    import * as kaspa from './kaspa-wasm32-sdk/web/kaspa/kaspa.js';
+  <script type="module"> 
+    // Import the Kaspa WASM module
+    import * as kaspa from './kas-wasm/kaspa.js';
 
     (async () => {
       // Initialize the WASM binary using new URL() so the loader knows it's a wasm file.
-      await kaspa.default(new URL('./kaspa-wasm32-sdk/web/kaspa/kaspa_bg.wasm', import.meta.url));
+      await kaspa.default(new URL('./kas-wasm/kaspa_bg.wasm', import.meta.url));
       console.log("Kaspa WASM loaded. Version:", kaspa.version());
 
       // Constants for wallet derivation.
