@@ -10,7 +10,7 @@ This project uses the Kaspa core devs' WASM SDK to create a Kaspa wallet in the 
 
 Place the kaswasm folder in a web host (e.g., XAMPP’s htdocs directory), then navigate to http://localhost/kaswasm to start.
 
-Ensure you have the latest version of the kaspa wasm sdk from [https://aspectron.org/en/projects/kaspa-wasm.html](https://aspectron.org/en/projects/kaspa-wasm.html) and unzip it. Then navigate to 'C:\Users\lapto\Downloads\kaspa-wasm32-sdk-v1.0.1\kaspa-wasm32-sdk\web\kaspa' replacing 'v1.0.1' with the latest version. Copy the kaspa.js and kaspa_bg.wasm file into '\kaswasm\kas-wasm'. If you experience unexpected behavior after updating/changing versions you may have to revert back to v1.0.1 or make changes to the wasm-wrapper.
+Ensure you have the latest version of the kaspa wasm sdk from [https://aspectron.org/en/projects/kaspa-wasm.html](https://aspectron.org/en/projects/kaspa-wasm.html) and unzip it. Then navigate to '\Downloads\kaspa-wasm32-sdk-v1.0.1\kaspa-wasm32-sdk\web\kaspa' replacing 'v1.0.1' with the latest version. Copy the kaspa.js and kaspa_bg.wasm file into '\kaswasm\kas-wasm'. If you experience unexpected behavior after updating/changing versions you may have to revert back to v1.0.1 or make changes to the wasm-wrapper.
 
 ## Quick Demo: Using wasm-wrapper
 
