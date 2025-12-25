@@ -1,82 +1,322 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kaspa WASM Wallet Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body { font-family: sans-serif; margin: 20px; }
-    input, button { font-size: 1rem; padding: 0.5em; }
-    #walletInfo { margin-top: 1em; }
-    #walletInfo p { margin: 0.3em 0; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaspa WASM Browser Demo</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- App styles -->
+  <link href="./styles.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Kaspa Wallet Generator</h1>
-  
-  <!-- Optional passphrase input -->
-  <div>
-    <label for="passphrase">Enter passphrase (optional):</label>
-    <input type="text" id="passphrase" placeholder="Optional passphrase" />
+  <div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+      <div class="col">
+        <h1 class="mb-3"><i class="bi bi-wallet2 me-2"></i>Kaspa WASM Browser Demo</h1>
+        <div class="d-flex flex-wrap gap-2 small">
+          <span class="fw-bold">Testnet:</span>
+          <a href="https://faucet-tn10.kaspanet.io/" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-droplet me-1"></i>TN10 Faucet
+          </a>
+          <a href="https://faucet-tn11.kaspanet.io/" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-droplet me-1"></i>TN11 Faucet
+          </a>
+          <a href="https://explorer-tn10.kaspa.org/" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-search me-1"></i>TN10 Explorer
+          </a>
+          <a href="https://explorer-tn11.kaspa.org/" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-search me-1"></i>TN11 Explorer
+          </a>
+          <span class="fw-bold ms-2">Docs:</span>
+          <a href="https://api.kaspa.org/docs#/" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-book me-1"></i>REST API
+          </a>
+          <a href="https://kaspa.aspectron.org/docs/" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-code-slash me-1"></i>WASM SDK
+          </a>          
+          <a href="https://github.com/kaspanet/rusty-kaspa/tree/master/wasm/examples" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-github me-1"></i>Examples
+          </a>
+          <a href="wasm-wrapper/api-reference.html" target="_blank" rel="noopener" class="text-decoration-none">
+            <i class="bi bi-journal-code me-1"></i>Local WASM Wrapper API
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Network Selection -->
+    <div class="row mb-4">
+      <div class="col-12 col-md-6">
+        <div class="card h-100">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-globe me-2"></i>Network</h6>
+          </div>
+          <div class="card-body">
+            <select id="networkSelect" class="form-select">
+              <option value="testnet-10" selected>testnet-10</option>
+              <option value="testnet-11">testnet-11</option>
+              <option value="mainnet">mainnet</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Blocks -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-boxes me-2"></i>Recent Blocks (Click to inspect, if you can as they're fast)</h6>
+      </div>
+      <div class="card-body p-0">
+        <div id="blocksContainer" class="blocks-container m-0 rounded-0 border-0">
+          <div id="blocksList">Waiting for new blocks...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Block Scanner Section -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-search me-2"></i>Block Scanner</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-3">
+          <i class="bi bi-info-circle me-1"></i>Scan incoming blocks for transactions with payloads matching your search text.
+        </p>
+        <div class="row g-3 align-items-end mb-3">
+          <div class="col-12 col-sm-4 col-md-4">
+            <label for="scannerSearchText" class="form-label small">Search Text</label>
+            <input type="text" class="form-control form-control-sm" id="scannerSearchText" placeholder="Enter text to search for...">
+          </div>
+          <div class="col-12 col-sm-4 col-md-3">
+            <label for="scannerMatchMode" class="form-label small">Match Mode</label>
+            <select id="scannerMatchMode" class="form-select form-select-sm">
+              <option value="contains" selected>Contains</option>
+              <option value="prefix">Prefix (starts with)</option>
+              <option value="suffix">Suffix (ends with)</option>
+              <option value="exact">Exact Match</option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-4 col-md-3">
+            <div class="d-flex gap-2">
+              <button id="scannerToggleBtn" class="btn btn-kaspa btn-sm flex-grow-1">
+                <i class="bi bi-play-fill me-1"></i>Start Scanning
+              </button>
+              <button id="scannerClearBtn" class="btn btn-outline-kaspa btn-sm">
+                <i class="bi bi-trash me-1"></i>Clear
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Scanner Status -->
+        <div id="scannerStatus" class="mb-3">
+          <span class="badge bg-secondary"><i class="bi bi-stop-circle me-1"></i>Stopped</span>
+        </div>
+        
+        <!-- Scanner Results -->
+        <div class="p-3 rounded" style="background-color: var(--kaspa-bg-input);">
+          <h6 class="mb-2"><i class="bi bi-list-check me-2"></i>Matching Transactions <span id="scannerResultCount" class="badge bg-kaspa ms-2">0</span></h6>
+          <div id="scannerResultsContainer" class="blocks-container m-0 rounded border" style="background-color: var(--kaspa-bg-card);">
+            <div id="scannerResultsList" class="p-2 text-muted">No matches yet. Start scanning to search incoming blocks...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet Manager Section -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Wallet Manager</h5>
+      </div>
+      <div class="card-body">
+        <!-- Stored Wallets List -->
+        <div id="walletListContainer" class="mb-3 p-3 rounded" style="background-color: var(--kaspa-bg-input);">
+          <em class="text-muted">Loading wallets...</em>
+        </div>
+        
+        <!-- Create / Import Wallet -->
+        <div class="p-3 rounded mb-3" style="background-color: var(--kaspa-bg-input);">
+          <h6 class="mb-3"><i class="bi bi-plus-circle me-2"></i>Add Wallet</h6>
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            <button id="createNewWalletBtn" class="btn btn-kaspa btn-sm">
+              <i class="bi bi-plus-lg me-1"></i>Create New Wallet
+            </button>
+            <button id="importWalletBtn" class="btn btn-outline-kaspa btn-sm">
+              <i class="bi bi-box-arrow-in-down me-1"></i>Import from Mnemonic
+            </button>
+          </div>
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>Create a new wallet or import an existing one using your recovery phrase.
+          </small>
+        </div>
+        
+        <!-- Retrieve Mnemonic Button -->
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <button id="retrieveMnemonicBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-key me-1"></i>Retrieve Stored Mnemonic
+          </button>
+          <small class="text-muted">(Only if saved during wallet creation)</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet Info Section -->
+    <div class="row mb-4">
+      <div class="col-12 col-md-6">
+        <div class="card h-100">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-wallet me-2"></i>Wallet Info</h6>
+          </div>
+          <div class="card-body">
+            <div class="mb-2">
+              <small class="text-muted">Balance:</small>
+              <div class="fw-bold" id="balance">-</div>
+            </div>
+            <div>
+              <small class="text-muted">Receiving Address:</small>
+              <div class="small text-break" id="receiveAddress">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Send Section -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-send me-2"></i>Send Transaction</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-sm-6 col-md-4">
+            <label for="amountInput" class="form-label small">Amount (KAS)</label>
+            <input type="text" class="form-control form-control-sm" id="amountInput" value="1.567">
+          </div>
+          <div class="col-12 col-sm-6 col-md-4">
+            <label for="customFeeInput" class="form-label small">Custom Fee (KAS)</label>
+            <input type="text" class="form-control form-control-sm" id="customFeeInput" value="0.000002" placeholder="Auto-estimate">
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="payloadInput" class="form-label small">Payload (optional)</label>
+            <input type="text" class="form-control form-control-sm" id="payloadInput" placeholder="Enter payload text">
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <button id="sendBtn" class="btn btn-kaspa btn-sm">
+            <i class="bi bi-send me-1"></i>Send to Self
+          </button>
+          <button id="transferBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-arrow-left-right me-1"></i>Transfer (Self)
+          </button>
+          <button id="getFeeEstimateBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-calculator me-1"></i>Fee Estimate
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Actions (Full json in log below)</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <button id="listTxBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-list-ul me-1"></i>List Transactions
+          </button>
+          <button id="getBlueScoreBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-graph-up me-1"></i>Blue Score
+          </button>
+          <button id="createAddressBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-plus-circle me-1"></i>New Address
+          </button>
+          <button id="listAddressesBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-card-list me-1"></i>List Addresses
+          </button>
+          <button id="showMnemonicBtn" class="btn btn-outline-kaspa btn-sm">
+            <i class="bi bi-eye me-1"></i>Show Mnemonic
+          </button>
+        </div>
+        
+        <!-- Transaction Lookup -->
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-sm-auto">
+            <label class="form-label small">Tx Direction</label>
+            <select id="txDirection" class="form-select form-select-sm">
+              <option value="incoming" selected>Incoming</option>
+              <option value="outgoing">Outgoing</option>
+            </select>
+          </div>
+          <div class="col-6 col-sm-auto">
+            <label for="txIndex" class="form-label small">Tx Index</label>
+            <input type="number" class="form-control form-control-sm" id="txIndex" value="0" min="0" style="width:80px;">
+          </div>
+          <div class="col-6 col-sm-auto d-flex align-items-end">
+            <button id="getTxBtn" class="btn btn-outline-kaspa btn-sm">
+              <i class="bi bi-search me-1"></i>Get Tx
+            </button>
+          </div>
+        </div>
+        
+        <!-- Payload Lookup -->
+        <div class="row g-3 mb-3">
+          <div class="col">
+            <label for="txIdPayloadInput" class="form-label small">Transaction ID (for payload)</label>
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control" id="txIdPayloadInput" placeholder="Enter transaction ID">
+              <button id="getPayloadBtn" class="btn btn-outline-kaspa">
+                <i class="bi bi-download me-1"></i>Fetch Payload
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- UTXO Lookup -->
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="utxoAddresses" class="form-label small">Addresses (for UTXOs)</label>
+            <input type="text" class="form-control form-control-sm" id="utxoAddresses" placeholder="Enter addresses separated by commas or spaces">
+          </div>
+          <div class="col-12">
+            <label for="utxoScriptPubKey" class="form-label small">Script Pub Key (alternative for UTXOs)</label>
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control" id="utxoScriptPubKey" placeholder="Enter script pub key">
+              <button id="getUtxosBtn" class="btn btn-outline-kaspa">
+                <i class="bi bi-box me-1"></i>Get UTXOs
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
+
+    <!-- Log Output -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-terminal me-2"></i>Log Output</h6>
+        <button id="clearLogBtn" class="btn btn-outline-kaspa btn-sm">
+          <i class="bi bi-trash me-1"></i>Clear
+        </button>
+      </div>
+      <div class="card-body p-0">
+        <pre id="output" class="log-output m-0 rounded-0 border-0"></pre>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center small text-muted py-3">
+      <i class="bi bi-github me-1"></i>Kaspa WASM Browser Demo
+    </div>
   </div>
-  
-  <!-- Button to generate wallet -->
-  <button id="generateWallet">Generate Wallet</button>
-  
-  <!-- Area where wallet details will be displayed -->
-  <div id="walletInfo">
-    <p><strong>Mnemonic:</strong> <span id="mnemonic">—</span></p>
-    <p><strong>Public Address:</strong> <span id="publicAddress">—</span></p>
-    <p><strong>Private Key:</strong> <span id="privateKey">—</span></p>
-  </div>
 
-  <!-- Main script -->
-  <script type="module"> 
-    // Import the Kaspa WASM module
-    import * as kaspa from './kas-wasm/kaspa.js';
-
-    (async () => {
-      // Initialize the WASM binary using new URL() so the loader knows it's a wasm file.
-      await kaspa.default(new URL('./kas-wasm/kaspa_bg.wasm', import.meta.url));
-      console.log("Kaspa WASM loaded. Version:", kaspa.version());
-
-      // Constants for wallet derivation.
-      const KASPA_DERIVATION_PATH = "m/44'/111111'/0'/0/0";
-      const networkType = "mainnet";  // Change if needed.
-
-      // Attach a click event handler to the generate button.
-      document.getElementById("generateWallet").addEventListener("click", () => {
-        // Read an optional passphrase from the input field.
-        const passphrase = document.getElementById("passphrase").value || null;
-        console.log("Creating new wallet with passphrase:", passphrase ? "[provided]" : "[none]", "on network:", networkType);
-
-        // Destructure wallet functions from the kaspa namespace.
-        // (These functions are from the WASM bindings and may vary by SDK version.)
-        const { Mnemonic, XPrv } = kaspa;
-
-        // Generate a new random mnemonic phrase.
-        const generatedMnemonic = Mnemonic.random().phrase;
-        
-        // Generate seed from mnemonic with optional passphrase.
-        const seed = passphrase 
-          ? new Mnemonic(generatedMnemonic).toSeed(passphrase)
-          : new Mnemonic(generatedMnemonic).toSeed();
-        
-        // Generate the hierarchical extended private key (xPrv) from the seed.
-        const xPrv = new XPrv(seed);
-        // Derive along the specified derivation path.
-        const derivedXPrv = xPrv.derivePath(KASPA_DERIVATION_PATH);
-        const privateKey = derivedXPrv.toPrivateKey();
-        
-        // Convert the public key into a Kaspa address.
-        const publicAddress = privateKey.toPublicKey().toAddress(networkType).toString();
-      
-        // Display the generated values in the page.
-        document.getElementById("mnemonic").textContent = generatedMnemonic;
-        document.getElementById("publicAddress").textContent = publicAddress;
-        document.getElementById("privateKey").textContent = privateKey.toString();
-      });
-    })();
-  </script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>

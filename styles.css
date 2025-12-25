@@ -1,0 +1,175 @@
+:root {
+  --kaspa-primary: #49eacb;
+  --kaspa-primary-dim: #3bc4a8;
+  --kaspa-bg-dark: #0d1117;
+  --kaspa-bg-card: #161b22;
+  --kaspa-bg-input: #21262d;
+  --kaspa-border: #30363d;
+}
+
+body {
+  background-color: var(--kaspa-bg-dark);
+  color: var(--kaspa-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--kaspa-primary);
+}
+
+a {
+  color: var(--kaspa-primary);
+}
+
+a:hover {
+  color: #fff;
+}
+
+.card {
+  background-color: var(--kaspa-bg-card);
+  border-color: var(--kaspa-border);
+}
+
+.card-header {
+  background-color: var(--kaspa-bg-input);
+  border-bottom-color: var(--kaspa-border);
+  color: var(--kaspa-primary);
+}
+
+.form-control, .form-select {
+  background-color: var(--kaspa-bg-input);
+  border-color: var(--kaspa-border);
+  color: var(--kaspa-primary);
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--kaspa-bg-input);
+  border-color: var(--kaspa-primary);
+  color: var(--kaspa-primary);
+  box-shadow: 0 0 0 0.25rem rgba(73, 234, 203, 0.25);
+}
+
+.form-control::placeholder {
+  color: rgba(73, 234, 203, 0.5);
+}
+
+.btn-kaspa {
+  background-color: var(--kaspa-primary);
+  border-color: var(--kaspa-primary);
+  color: #000;
+  font-weight: 500;
+}
+
+.btn-kaspa:hover {
+  background-color: #fff;
+  border-color: #fff;
+  color: #000;
+}
+
+.btn-outline-kaspa {
+  border-color: var(--kaspa-primary);
+  color: var(--kaspa-primary);
+}
+
+.btn-outline-kaspa:hover {
+  background-color: var(--kaspa-primary);
+  color: #000;
+}
+
+.btn-danger {
+  background-color: #f85149;
+  border-color: #f85149;
+}
+
+.table {
+  color: var(--kaspa-primary);
+}
+
+.table > :not(caption) > * > * {
+  background-color: transparent;
+  border-bottom-color: var(--kaspa-border);
+}
+
+.log-output {
+  background-color: var(--kaspa-bg-input);
+  border: 1px solid var(--kaspa-border);
+  border-radius: 0.375rem;
+  color: var(--kaspa-primary);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  max-height: 400px;
+  overflow: auto;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.blocks-container {
+  background-color: var(--kaspa-bg-input);
+  border: 1px solid var(--kaspa-border);
+  border-radius: 0.375rem;
+  color: var(--kaspa-primary);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  height: 150px; /* fixed height so Recent Blocks area doesn't resize */
+  overflow: auto;
+  padding: 0.75rem;
+}
+
+.badge-kaspa {
+  background-color: var(--kaspa-primary);
+  color: #000;
+}
+
+.bg-kaspa {
+  background-color: var(--kaspa-primary) !important;
+  color: #000 !important;
+}
+
+.text-kaspa {
+  color: var(--kaspa-primary) !important;
+}
+
+.border-kaspa {
+  border-color: var(--kaspa-primary) !important;
+}
+
+.wallet-info {
+  background-color: var(--kaspa-bg-input);
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
+.input-group-text {
+  background-color: var(--kaspa-bg-card);
+  border-color: var(--kaspa-border);
+  color: var(--kaspa-primary);
+}
+
+.form-label {
+  color: var(--kaspa-primary);
+  font-weight: 500;
+}
+
+.text-muted {
+  color: rgba(73, 234, 203, 0.6) !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--kaspa-bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--kaspa-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--kaspa-primary-dim);
+}
